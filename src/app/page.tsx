@@ -11,6 +11,7 @@ import { SendTransaction } from '../components/SendTransaction'
 import { SendTransactionPrepared } from '../components/SendTransactionPrepared'
 import { SignMessage } from '../components/SignMessage'
 import { SignTypedData } from '../components/SignTypedData'
+import { SquidTest } from '../components/SquidTest'
 import { Token } from '../components/Token'
 import { WatchContractEvents } from '../components/WatchContractEvents'
 import { WatchPendingTransactions } from '../components/WatchPendingTransactions'
@@ -25,6 +26,10 @@ export function Page() {
       <ConnectButton />
 
       <Connected>
+      <hr />
+        <h2>Test Squid</h2>
+        <SquidTest/>
+        <br />
         <hr />
         <h2>Network</h2>
         <NetworkSwitcher />
