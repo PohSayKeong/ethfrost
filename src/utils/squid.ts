@@ -1,7 +1,7 @@
 import { GetRoute, Squid } from "@0xsquid/sdk";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { ethers } from "ethers";
-import { erc20ABI } from "wagmi";
+import xcmContract from "../contracts/MoonbeamXcmAction.json";
 
 const getSDK = (): Squid => {
     const squid = new Squid({
@@ -54,12 +54,9 @@ export const squid = async (signer: JsonRpcSigner) => {
     );
 
     const toAddress = await signer.getAddress();
-    const wmovr = "0x372d0695E75563D9180F8CE31c9924D7e8aaac47";
-    const erc20ContractInterface = new ethers.utils.Interface(erc20ABI);
-    const approveEncodeData = erc20ContractInterface.encodeFunctionData(
-        "approve",
-        ["0xF75F62464fb6ae6E7088b76457E164EeCfB07dB4", "0"]
-    );
+    const moonbeamXcmAction = new ethers.utils.Interface(xcmContract.abi);
+    const mintVNativeAsset =
+        moonbeamXcmAction.encodeFunctionData("mintVNativeAsset");
 
     const params: GetRoute = {
         fromChain: 5, // Goerli testnet
@@ -72,18 +69,16 @@ export const squid = async (signer: JsonRpcSigner) => {
         quoteOnly: false, // optional, defaults to false
         enableExpress: true,
         customContractCalls: [
-            // replace this with calling XCM action contract
-            // {
-            //     callType: 1,
-            //     target: wmovr, //WMVOR
-            //     value: "0",
-            //     callData: approveEncodeData,
-            //     payload: {
-            //         tokenAddress: wmovr,
-            //         inputPos: 1,
-            //     },
-            //     estimatedGas: "400000",
-            // },
+            {
+                callType: 2,
+                target: xcmContract.address, //WMVOR
+                callData: mintVNativeAsset,
+                estimatedGas: "400000",
+                payload: {
+                    tokenAddress: xcmContract.address,
+                    inputPos: -1,
+                },
+            },
         ],
     };
 
