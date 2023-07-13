@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   Grid,
@@ -13,6 +13,10 @@ import {
 } from "@nextui-org/react";
 import type { NextPage } from "next";
 import ArrowCircleDownIcon from "@mui/icons-material/ArrowCircleDown";
+import { getPrices, getSite } from "@/api/api";
+import { CardHeader, Box, Typography, Icon, CardContent } from "@mui/material";
+import APYCard from "@/utils/statsCard";
+import { setMaxListeners } from "events";
 interface Token {
   value: string;
   label: string;
@@ -30,6 +34,8 @@ const Swap: NextPage = () => {
   const [outputToken, setOutputToken] = useState(tokens[1]);
   const [inputAmount, setInputAmount] = useState("");
   const [outputAmount, setOutputAmount] = useState("");
+  const [site,setSite] = useState<any>(null)
+  const [prices, setPrices] = useState<any>(null)
 
   function getTokenByValue(value: string) {
     return tokens.find((token) => token.value === value);
@@ -48,7 +54,24 @@ const Swap: NextPage = () => {
     setOutputAmount(e.target.value);
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const site = await getSite()
+        const prices = await getPrices()
+        
+        setSite(site)
+        setPrices(prices)
+    }
+    catch{
+      alert('Error occurred while fetching data')
+    }}
+    
+    fetchData()
+  }, [])
+
   return (
+    <div>
     <Grid.Container gap={2} justify="center">
       <Grid xs={12} sm={8} md={6}>
         <Card>
@@ -125,6 +148,42 @@ const Swap: NextPage = () => {
         </Card>
       </Grid>
     </Grid.Container>
+    {site && prices &&
+    <Grid.Container gap={2} justify="center">
+      <Grid xs={12} sm={8} md={6}>
+        <Card>
+          <Card.Header>
+            <Row justify="center">
+              <Text h3>vGLMR Data</Text>
+            </Row>
+          </Card.Header>
+          <Card.Body>
+            <Row justify="center">
+              <Col span={6}>
+                <Text h5>APY: {site.vGLMR.apy}%</Text>
+              </Col>
+              <Col span={6}>
+                <Text h5>1 vGLMR: {prices.prices.vglmr / prices.prices.glmr} GLMR</Text>
+              </Col>
+            </Row>
+            <Row justify="center">
+              <Col span={6}>
+                <Text h5>Total Staked: {site.vGLMR.tvm} GMLR</Text>
+              </Col>
+              <Col span={6}>
+                <Text h5>Total Liquidity: ${site.vGLMR.tvl * prices.prices.glmr}</Text>
+              </Col>
+            </Row>
+            <Row justify="center">
+              <Col span={6}>
+                <Text h5>vGLMR TVS: ${site.vGLMR.tvm * prices.prices.glmr}</Text>
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
+      </Grid>
+    </Grid.Container>}
+  </div>
   );
 };
 
