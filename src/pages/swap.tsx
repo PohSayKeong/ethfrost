@@ -15,7 +15,7 @@ import {
 import { Grid as MuiGrid } from "@mui/material";
 import type { NextPage } from "next";
 import ArrowCircleDownIcon from "@mui/icons-material/ArrowCircleDown";
-import { getPrices, getSite, getTokens } from "@/api/api";
+import { getChains, getPrices, getSite, getTokens } from "@/api/api";
 import { makeStyles } from "@material-ui/core/styles";
 import MonetizationOnIcon from "@material-ui/icons/MonetizationOn";
 import TrendingUpIcon from "@material-ui/icons/TrendingUp";
@@ -29,6 +29,14 @@ interface Token {
   logoURI?: string;
   name?: string;
   symbol?: string;
+}
+
+interface Chain {
+  networkName?: string;
+  chainId?: number;
+  rpc?: string;
+  chainName?: string;
+  chainIconURI?: string;
 }
 
 const vGLMR: Token = {
@@ -62,9 +70,17 @@ const Swap: NextPage = () => {
   const [outputAmount, setOutputAmount] = useState("");
   const [site, setSite] = useState<any>(null);
   const [prices, setPrices] = useState<any>(null);
-
+  const [chains, setChains] = useState<Chain[]>([]);
+  const [selectedChain, setSelectedChain] = useState<Chain>();
+  const filteredTokens = tokens.filter(
+    (token) => token.chainId == selectedChain?.chainId
+  );
   function getTokenByAddress(address: string) {
-    return tokens.find((token) => token.address === address);
+    return filteredTokens.find((token) => token.address === address);
+  }
+
+  function getChainById(id: number) {
+    return chains.find((chain) => chain.chainId == id);
   }
 
   const handleSwap = () => {
@@ -85,9 +101,15 @@ const Swap: NextPage = () => {
         const site = await getSite();
         const prices = await getPrices();
         const tokenData = await getTokens();
+        const chainsData = await getChains();
+
+        const chains = chainsData["chains"];
         const tokens = tokenData["tokens"];
+
+        setChains(chains);
         setTokens(tokens);
         setInputToken(tokens[0]);
+        setSelectedChain(chains[0]);
         setSite(site);
         setPrices(prices);
       } catch {
@@ -97,17 +119,55 @@ const Swap: NextPage = () => {
 
     fetchData();
   }, []);
-  console.log(tokens);
-  console.log(inputToken);
+
+  useEffect(() => {
+    if (selectedChain && tokens) {
+      setInputToken(filteredTokens[0]);
+    }
+  }, [selectedChain]);
   return (
     <div>
-      {tokens && inputToken && (
+      {tokens && inputToken && selectedChain && (
         <Grid.Container gap={2} justify="center">
           <Grid xs={12} sm={8} md={6}>
             <Card>
               <Card.Header>
-                <Row justify="center">
+                <Row justify="center" align="center">
                   <Text h3>Swap</Text>
+                  <Spacer x={2} style={{ flexGrow: 0.7 }} />
+                  <Dropdown>
+                    <Dropdown.Button css={{ minWidth: "200px" }}>
+                      <Avatar
+                        bordered
+                        size="sm"
+                        as="button"
+                        src={selectedChain?.chainIconURI}
+                      />
+                      <Spacer x={1} />
+                      {selectedChain?.chainName}
+                    </Dropdown.Button>
+                    <Dropdown.Menu
+                      aria-label="Dynamic Actions"
+                      onAction={(key) => {
+                        setSelectedChain(getChainById(key as number) as Chain);
+                      }}
+                    >
+                      {chains.map((chain: Chain) => (
+                        <Dropdown.Item key={chain.chainId}>
+                          <Row css={{ alignItems: "center" }}>
+                            <Avatar
+                              bordered
+                              size="sm"
+                              as="button"
+                              src={chain.chainIconURI}
+                            />
+                            <Spacer x={1} />
+                            {chain.chainName}
+                          </Row>
+                        </Dropdown.Item>
+                      ))}
+                    </Dropdown.Menu>
+                  </Dropdown>
                 </Row>
               </Card.Header>
               <Card.Divider />
@@ -133,7 +193,7 @@ const Swap: NextPage = () => {
                           );
                         }}
                       >
-                        {tokens.map((token: Token) => (
+                        {filteredTokens.map((token: Token) => (
                           <Dropdown.Item key={token.address}>
                             <Row css={{ alignItems: "center" }}>
                               <Avatar
