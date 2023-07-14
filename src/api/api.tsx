@@ -1,43 +1,57 @@
 export async function callAPI({
-    url,
+  url,
+  method,
+  body,
+  headers,
+}: {
+  url: string;
+  method: "GET" | "POST" | "PUT" | "DELETE";
+  body?: any;
+  headers?: Record<string, string>;
+}) {
+  const response = await fetch(url, {
     method,
-    body,
-    headers
-  }: {
-    url: string
-    method: 'GET' | 'POST' | 'PUT' | 'DELETE'
-    body?: any
-    headers?: Record<string, string>
-  }) {
-    const response = await fetch(url, {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-        ...headers
-      },
-      body: body ? JSON.stringify(body) : null
-    })
-  
-    if (!response.ok) {
-      const data = await response.json()
-      throw new Error(`HTTP error! status: ${data.message}`)
-    }
-  
-    const data = await response.json()
-  
-    return data
+    headers: {
+      "Content-Type": "application/json",
+      ...headers,
+    },
+    body: body ? JSON.stringify(body) : null,
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(`HTTP error! status: ${data.message}`);
   }
 
-  export async function getSite() {
-    return callAPI({
-      url: `https://api.bifrost.app/api/site`,
-      method: 'GET'
-    })
-  }
+  const data = await response.json();
 
-  export async function getPrices() {
-    return callAPI({
-      url: `https://api.bifrost.app/api/dapp/prices`,
-      method: 'GET'
-    })
-  }
+  return data;
+}
+
+export async function getSite() {
+  return callAPI({
+    url: `https://api.bifrost.app/api/site`,
+    method: "GET",
+  });
+}
+
+export async function getPrices() {
+  return callAPI({
+    url: `https://api.bifrost.app/api/dapp/prices`,
+    method: "GET",
+  });
+}
+
+export async function getTokens() {
+  return callAPI({
+    url: "https://testnet.api.0xsquid.com/v1/tokens",
+    method: "GET",
+  });
+}
+
+export async function getChains() {
+  return callAPI({
+    url: "https://testnet.api.0xsquid.com/v1/chains",
+    method: "GET",
+  });
+}
