@@ -20,7 +20,6 @@ import { getChains, getPrices, getSite, getTokens } from "@/api/api";
 import { StatsDisplay } from "@/components/StatsDisplay";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Connected } from "@/components/Connected";
-import { Providers } from "@/app/providers";
 import "@rainbow-me/rainbowkit/styles.css";
 import { useAccount, useNetwork } from "wagmi";
 
@@ -65,7 +64,6 @@ const Swap: NextPage = () => {
     (token) => token.chainId == selectedChain?.chainId
   );
 
-  console.log(filteredTokens);
   function getTokenByAddress(address: string) {
     return filteredTokens.find((token) => token.address === address);
   }
@@ -113,14 +111,13 @@ const Swap: NextPage = () => {
 
   useEffect(() => {
     if (!chain) return;
-    function getChainById(id: number) {
-      return chains.find((chain) => chain.chainId == id);
-    }
+    const getChainById = (id: number) =>
+      chains.find((chain) => chain.chainId == id);
     setSelectedChain(getChainById(chain.id));
   }, [chain, chains]);
 
   return (
-    <Providers>
+    <>
       {tokens && inputToken && selectedChain && (
         <Grid.Container gap={2} justify="center">
           <Grid xs={12} sm={8} md={6}>
@@ -224,7 +221,7 @@ const Swap: NextPage = () => {
       )}
 
       {site && prices && <StatsDisplay site={site} prices={prices} />}
-    </Providers>
+    </>
   );
 };
 
