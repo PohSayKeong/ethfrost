@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Card,
   Grid,
@@ -21,10 +21,10 @@ import { StatsDisplay } from "@/components/StatsDisplay";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Connected } from "@/components/Connected";
 import "@rainbow-me/rainbowkit/styles.css";
-import { useAccount, useNetwork } from "wagmi";
+import { useAccount, useBalance, useNetwork } from "wagmi";
 
 interface Token {
-  address?: string;
+  address?: `0x${string}`;
   chainId?: number;
   coingeckoId?: string;
   logoURI?: string;
@@ -57,11 +57,19 @@ const Swap: NextPage = () => {
   const [selectedChain, setSelectedChain] = useState<Chain>();
 
   // wagmi
-  const { isConnected } = useAccount();
+  const { address } = useAccount();
   const { chain } = useNetwork();
+  const { data: inputBalance } = useBalance({
+    address,
+    token:
+      inputToken?.address != "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+        ? inputToken?.address
+        : undefined,
+  });
 
-  const filteredTokens = tokens.filter(
-    (token) => token.chainId == selectedChain?.chainId
+  const filteredTokens = useMemo(
+    () => tokens.filter((token) => token.chainId == selectedChain?.chainId),
+    [selectedChain?.chainId, tokens]
   );
 
   function getTokenByAddress(address: string) {
@@ -104,10 +112,8 @@ const Swap: NextPage = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedChain && tokens) {
-      setInputToken(filteredTokens[0]);
-    }
-  }, [filteredTokens, selectedChain, tokens]);
+    if (filteredTokens) setInputToken(filteredTokens[0]);
+  }, [filteredTokens]);
 
   useEffect(() => {
     if (!chain) return;
@@ -129,12 +135,20 @@ const Swap: NextPage = () => {
                   <ConnectButton />
                 </Row>
               </Card.Header>
-              <Card.Divider />
-              <Card.Body>
-                <Row justify="center">
-                  <Col span={8}>
+              <Card.Body css={{ padding: 0 }}>
+                <Row justify="space-around">
+                  <Col span={7}>
+                    <Input
+                      type="number"
+                      value={inputAmount}
+                      onChange={handleInputChange}
+                      fullWidth
+                    />
+                    <Text>{`Balance: ${inputBalance?.formatted}`}</Text>
+                  </Col>
+                  <Col span={4}>
                     <Dropdown>
-                      <Dropdown.Button css={{ minWidth: "200px" }}>
+                      <Dropdown.Button css={{ width: "100%" }}>
                         <Avatar
                           bordered
                           size="sm"
@@ -169,42 +183,36 @@ const Swap: NextPage = () => {
                       </Dropdown.Menu>
                     </Dropdown>
                   </Col>
-                  <Col span={4}>
-                    <Input
-                      type="number"
-                      value={inputAmount}
-                      onChange={handleInputChange}
-                    />
-                  </Col>
                 </Row>
                 <Row justify="center">
                   <ArrowCircleDownIcon fontSize="large" />
                 </Row>
-                <Row justify="center">
-                  <Col span={8}>
-                    <div style={{ width: "100%" }}>
-                      <Button css={{ minWidth: "200px" }}>
-                        <Avatar
-                          bordered
-                          size="sm"
-                          as="button"
-                          src={vGLMR.logoURI}
-                        />
-                        <Spacer x={1} />
-                        {vGLMR.name}
-                      </Button>
-                    </div>
-                  </Col>
-                  <Col span={4}>
+                <Row justify="space-around">
+                  <Col span={7}>
                     <Input
                       type="number"
                       value={outputAmount}
                       onChange={handleInputChange}
+                      fullWidth
                     />
+                    <Text>Balance: 0</Text>
+                  </Col>
+                  <Col span={4}>
+                    <Button css={{ width: "100%" }}>
+                      <Avatar
+                        bordered
+                        size="sm"
+                        as="button"
+                        src={vGLMR.logoURI}
+                      />
+                      <Spacer x={1} />
+                      {vGLMR.name}
+                      <Spacer x={1} />
+                    </Button>
                   </Col>
                 </Row>
               </Card.Body>
-              {isConnected && (
+              <Connected>
                 <Card.Footer>
                   <Row justify="center">
                     <Connected>
@@ -214,7 +222,7 @@ const Swap: NextPage = () => {
                     </Connected>
                   </Row>
                 </Card.Footer>
-              )}
+              </Connected>
             </Card>
           </Grid>
         </Grid.Container>
