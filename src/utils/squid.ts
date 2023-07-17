@@ -1,6 +1,7 @@
 import { GetRoute, Squid, RouteData } from "@0xsquid/sdk";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { ethers } from "ethers";
+import { SetStateAction } from "react";
 import xcmContract from "../contracts/MoonbeamXcmAction.json";
 
 const getSDK = (): Squid => {

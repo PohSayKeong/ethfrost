@@ -13,6 +13,9 @@ import {
   FormElement,
   Avatar,
   Spacer,
+  Loading,
+  Modal,
+  Link,
 } from "@nextui-org/react";
 import type { NextPage } from "next";
 import ArrowCircleDownIcon from "@mui/icons-material/ArrowCircleDown";
@@ -65,6 +68,15 @@ const Swap: NextPage = () => {
   const [selectedChain, setSelectedChain] = useState<Chain>();
   const [squidInstance, setSquidInstance] = useState<Squid>();
   const [route, setRoute] = useState<RouteData>();
+  const [priceLoading, setPriceLoading] = useState<boolean>(false);
+  const [tradeLoading, setTradeLoading] = useState<boolean>(false);
+  const [visible, setVisible] = useState<boolean>(false);
+  const [transactionLink, setTransactionLink] = useState<string>();
+  const handler = () => setVisible(true);
+
+  const closeHandler = () => {
+    setVisible(false);
+  };
 
   // wagmi
   const { address } = useAccount();
@@ -96,6 +108,7 @@ const Swap: NextPage = () => {
         selectedChain.chainId
       ) {
         const address = inputToken.address;
+        setPriceLoading(true);
         const routeInstance = await findRoute(
           signer,
           squidInstance,
@@ -108,6 +121,7 @@ const Swap: NextPage = () => {
         const amt =
           parseFloat(routeInstance.route.estimate.toAmount) / multiplier;
         setOutputAmount(amt);
+        setPriceLoading(false);
       }
     };
 
@@ -125,7 +139,11 @@ const Swap: NextPage = () => {
   const handleSwap = async () => {
     // empty
     if (signer && squidInstance && route) {
-      await executeSwap(signer, squidInstance, route);
+      handler();
+      setTradeLoading(true);
+      const tx = await executeSwap(signer, squidInstance, route);
+      setTransactionLink(tx.axelarTransactionUrl);
+      setTradeLoading(false);
     }
   };
 
@@ -237,12 +255,17 @@ const Swap: NextPage = () => {
                 </Row>
                 <Row justify="space-around">
                   <Col span={7}>
-                    <Input
-                      type="number"
-                      value={outputAmount}
-                      onChange={handleInputChange}
-                      fullWidth
-                    />
+                    {priceLoading ? (
+                      <Loading />
+                    ) : (
+                      <Input
+                        type="number"
+                        value={outputAmount}
+                        onChange={handleInputChange}
+                        fullWidth
+                      />
+                    )}
+
                     <Text>Balance: 0</Text>
                   </Col>
                   <Col span={4}>
@@ -275,7 +298,30 @@ const Swap: NextPage = () => {
           </Grid>
         </Grid.Container>
       )}
-
+      <Modal
+        closeButton
+        aria-labelledby="modal-title"
+        open={visible}
+        onClose={closeHandler}
+      >
+        <Modal.Header>
+          <Text id="modal-title" size={18}>
+            Swapping Tokens
+          </Text>
+        </Modal.Header>
+        <Modal.Body>
+          {tradeLoading ? (
+            <Loading />
+          ) : (
+            <>
+              <Text size={16}>Trade successful!</Text>
+              <Link href={transactionLink} isExternal>
+                Transaction Link
+              </Link>
+            </>
+          )}
+        </Modal.Body>
+      </Modal>
       {site && prices && <StatsDisplay site={site} prices={prices} />}
     </>
   );
