@@ -1,12 +1,10 @@
-'use client'
+// "use client";
 
-import { useEthersSigner } from '../hooks/useEthersSigner'
-import { squid } from '../utils/squid'
+// import { useEthersSigner } from "../hooks/useEthersSigner";
+// import { squid } from "../utils/squid";
 
-export function SquidTest() {
-  const signer = useEthersSigner()
+// export function SquidTest() {
+//   const signer = useEthersSigner();
 
-  return (
-    <button onClick={() =>  signer && squid(signer)}>Squid</button>
-  )
-}
+//   return <button onClick={() => signer && squid(signer, "", "")}>Squid</button>;
+// }

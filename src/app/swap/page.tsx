@@ -22,6 +22,14 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Connected } from "@/components/Connected";
 import "@rainbow-me/rainbowkit/styles.css";
 import { useAccount, useBalance, useNetwork } from "wagmi";
+import { useEthersSigner } from "../../hooks/useEthersSigner";
+import {
+  createSquid,
+  executeSwap,
+  findRoute,
+  multiplier,
+} from "../../utils/squid";
+import { RouteData, Squid } from "@0xsquid/sdk";
 
 interface Token {
   address?: `0x${string}`;
@@ -49,12 +57,14 @@ const vGLMR: Token = {
 const Swap: NextPage = () => {
   const [tokens, setTokens] = useState<Token[]>([]);
   const [inputToken, setInputToken] = useState<Token>();
-  const [inputAmount, setInputAmount] = useState("");
-  const [outputAmount, setOutputAmount] = useState("");
+  const [inputAmount, setInputAmount] = useState<number>();
+  const [outputAmount, setOutputAmount] = useState<number>();
   const [site, setSite] = useState<any>(null);
   const [prices, setPrices] = useState<any>(null);
   const [chains, setChains] = useState<Chain[]>([]);
   const [selectedChain, setSelectedChain] = useState<Chain>();
+  const [squidInstance, setSquidInstance] = useState<Squid>();
+  const [route, setRoute] = useState<RouteData>();
 
   // wagmi
   const { address } = useAccount();
@@ -66,7 +76,43 @@ const Swap: NextPage = () => {
         ? inputToken?.address
         : undefined,
   });
+  const signer = useEthersSigner();
 
+  useEffect(() => {
+    const createSquidInstance = async () => {
+      setSquidInstance(await createSquid());
+    };
+    createSquidInstance();
+  }, []);
+
+  useEffect(() => {
+    const updateRoute = async () => {
+      if (
+        signer &&
+        squidInstance &&
+        inputToken &&
+        inputAmount &&
+        selectedChain &&
+        selectedChain.chainId
+      ) {
+        const address = inputToken.address;
+        const routeInstance = await findRoute(
+          signer,
+          squidInstance,
+          address ? address.toString() : "",
+          selectedChain?.chainId.toString(),
+          inputAmount
+        );
+        setRoute(routeInstance.route);
+        setSquidInstance(routeInstance.squidInstance);
+        const amt =
+          parseFloat(routeInstance.route.estimate.toAmount) / multiplier;
+        setOutputAmount(amt);
+      }
+    };
+
+    updateRoute();
+  }, [signer, squidInstance, inputToken, inputAmount, selectedChain]);
   const filteredTokens = useMemo(
     () => tokens.filter((token) => token.chainId == selectedChain?.chainId),
     [selectedChain?.chainId, tokens]
@@ -76,14 +122,16 @@ const Swap: NextPage = () => {
     return filteredTokens.find((token) => token.address === address);
   }
 
-  const handleSwap = () => {
+  const handleSwap = async () => {
     // empty
+    if (signer && squidInstance && route) {
+      await executeSwap(signer, squidInstance, route);
+    }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<FormElement>) => {
-    setInputAmount(e.target.value);
-    // Placeholder calculation
-    setOutputAmount(e.target.value);
+  const handleInputChange = async (e: React.ChangeEvent<FormElement>) => {
+    const inputValue = parseFloat(e.target.value);
+    setInputAmount(isNaN(inputValue) ? 0 : inputValue);
   };
 
   useEffect(() => {
