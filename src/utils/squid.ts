@@ -1,8 +1,7 @@
 import { GetRoute, Squid, RouteData } from "@0xsquid/sdk";
 import { JsonRpcSigner } from "@ethersproject/providers";
 import { ethers } from "ethers";
-import { SetStateAction } from "react";
-import xcmContract from "../contracts/MoonbeamXcmAction.json";
+import xcmContract from "../contracts/MoonbeamSlpx.json";
 
 const getSDK = (): Squid => {
   const squid = new Squid({
@@ -35,8 +34,8 @@ export const findRoute = async (
   const fromAmount = amount * multiplier;
   const params: GetRoute = {
     fromChain: chainId, // Goerli testnet
-    fromToken: tokenAddress, // WETH on Goerli
-    fromAmount: fromAmount.toString(), // 0.02 WETH
+    fromToken: tokenAddress,
+    fromAmount: fromAmount.toString(),
     toChain: 1287, // Moonbase
     toToken: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", // DEV on Moonbase
     toAddress, // the recipient of the trade

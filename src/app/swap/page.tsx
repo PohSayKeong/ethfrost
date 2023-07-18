@@ -88,6 +88,11 @@ const Swap: NextPage = () => {
         ? inputToken?.address
         : undefined,
   });
+  const { data: vGLMRBalance } = useBalance({
+    address,
+    token: "0xFfFfFFff99dABE1a8De0EA22bAa6FD48fdE96F6c",
+    chainId: 1287,
+  });
   const signer = useEthersSigner();
 
   useEffect(() => {
@@ -266,7 +271,7 @@ const Swap: NextPage = () => {
                       />
                     )}
 
-                    <Text>Balance: 0</Text>
+                    <Text>Balance: {vGLMRBalance?.formatted}</Text>
                   </Col>
                   <Col span={4}>
                     <Button css={{ width: "100%" }}>

@@ -1,11 +1,22 @@
 import { getDefaultWallets } from "@rainbow-me/rainbowkit";
 import { configureChains, createConfig } from "wagmi";
-import { avalancheFuji, bscTestnet, goerli, polygonMumbai } from "wagmi/chains";
+import {
+  avalancheFuji,
+  bscTestnet,
+  goerli,
+  polygonMumbai,
+  moonbaseAlpha,
+} from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 
 const walletConnectProjectId = "3fd6555082bbcab387f101059b6a785f";
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
+  [goerli, avalancheFuji, bscTestnet, polygonMumbai, moonbaseAlpha],
+  [publicProvider()]
+);
+
+const { chains: rainbowChains } = configureChains(
   [goerli, avalancheFuji, bscTestnet, polygonMumbai],
   [publicProvider()]
 );
@@ -23,4 +34,4 @@ export const config = createConfig({
   webSocketPublicClient,
 });
 
-export { chains };
+export { chains, rainbowChains };
