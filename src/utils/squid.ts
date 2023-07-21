@@ -24,12 +24,15 @@ export const findRoute = async (
   squidInstance: Squid,
   tokenAddress: string,
   chainId: string,
-  amount: number
+  amount: number,
+  userAddress: string
 ) => {
   const toAddress = await signer.getAddress();
   const moonbeamXcmAction = new ethers.utils.Interface(xcmContract.abi);
-  const mintVNativeAsset =
-    moonbeamXcmAction.encodeFunctionData("mintVNativeAsset");
+  const mintVNativeAsset = moonbeamXcmAction.encodeFunctionData(
+    "mintVNativeAsset",
+    [userAddress]
+  );
 
   const fromAmount = amount * multiplier;
   const params: GetRoute = {

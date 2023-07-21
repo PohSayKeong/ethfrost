@@ -112,14 +112,15 @@ const Swap: NextPage = () => {
         selectedChain &&
         selectedChain.chainId
       ) {
-        const address = inputToken.address;
+        const tokenAddress = inputToken.address;
         setPriceLoading(true);
         const routeInstance = await findRoute(
           signer,
           squidInstance,
-          address ? address.toString() : "",
+          tokenAddress ? tokenAddress.toString() : "",
           selectedChain?.chainId.toString(),
-          inputAmount
+          inputAmount,
+          address
         );
         setRoute(routeInstance.route);
         setSquidInstance(routeInstance.squidInstance);
