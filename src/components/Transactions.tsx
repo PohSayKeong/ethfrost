@@ -1,4 +1,4 @@
-import { Card, Text, Link, Row, Spacer } from "@nextui-org/react";
+import { Text, Link, Row, Spacer } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 
 const TransactionComponent = () => {
@@ -19,42 +19,33 @@ const TransactionComponent = () => {
       {transactions.length > 0 ? (
         <>
           {transactions.map((text, index) => (
-            <Card
+            <Row
+              align="center"
+              justify="space-between"
               key={index}
-              css={{
-                width: "80%",
-                marginLeft: "auto",
-                marginRight: "auto",
-                alignItems: "center",
-                marginBottom: "1rem",
-              }}
+              style={{ padding: "2rem" }}
             >
-              <Card.Body>
-                <Row align="center" justify="center">
-                  <Text h4>{index + 1}.</Text>
-                  <Spacer x={2} />
-                  <Link href={text} isExternal target="_blank">
-                    Transaction Link
-                  </Link>
-                </Row>
-              </Card.Body>
-            </Card>
+              <Text h4 style={{ marginBottom: "0px" }}>
+                {index + 1}.
+              </Text>
+              <Spacer x={2} />
+              <Link
+                href={text}
+                isExternal
+                target="_blank"
+                style={{ flexGrow: "1", overflowWrap: "anywhere" }}
+              >
+                {text}
+              </Link>
+            </Row>
           ))}
         </>
       ) : (
-        <Card
-          css={{
-            width: "80%",
-            marginLeft: "auto",
-            marginRight: "auto",
-            alignItems: "center",
-            marginBottom: "1rem",
-          }}
-        >
-          <Card.Body>
-            <Text>No Past Transactions!</Text>
-          </Card.Body>
-        </Card>
+        <Row align="center" justify="center" style={{ padding: "2rem" }}>
+          <Text h3 b>
+            No Past Transactions!
+          </Text>
+        </Row>
       )}
     </>
   );

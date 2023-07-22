@@ -3,6 +3,7 @@
 import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import * as React from "react";
 import { WagmiConfig } from "wagmi";
+import { NextUIProvider } from "@nextui-org/react";
 
 import { config, rainbowChains } from "../wagmi";
 
@@ -12,7 +13,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <WagmiConfig config={config}>
       <RainbowKitProvider chains={rainbowChains}>
-        {mounted && children}
+        <NextUIProvider>{mounted && children}</NextUIProvider>
       </RainbowKitProvider>
     </WagmiConfig>
   );
