@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Card,
   Grid,
@@ -17,6 +17,8 @@ import {
   Modal,
   Link,
 } from "@nextui-org/react";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
 import TransactionComponent from "@/components/Transactions";
 import type { NextPage } from "next";
 import ArrowCircleDownIcon from "@mui/icons-material/ArrowCircleDown";
@@ -220,6 +222,10 @@ const Swap: NextPage = () => {
     fontWeight: "bold",
     cursor: "pointer",
   };
+
+  const handleChange = (event: React.SyntheticEvent, newValue: string) => {
+    setContent(newValue);
+  };
   return (
     <>
       {tokens && inputToken && selectedChain && (
@@ -228,29 +234,14 @@ const Swap: NextPage = () => {
             <Card>
               <Card.Header>
                 <Row justify="center" align="center">
-                  <Text
-                    h3
-                    style={
-                      content == "Swap"
-                        ? blueUnderlineBold
-                        : { cursor: "pointer" }
-                    }
-                    onClick={() => setContent("Swap")}
+                  <Tabs
+                    value={content}
+                    onChange={handleChange}
+                    aria-label="basic tabs example"
                   >
-                    Swap
-                  </Text>
-                  <Spacer x={2} />
-                  <Text
-                    h3
-                    style={
-                      content == "Past Transactions"
-                        ? blueUnderlineBold
-                        : { cursor: "pointer" }
-                    }
-                    onClick={() => setContent("Past Transactions")}
-                  >
-                    Past Transactions
-                  </Text>
+                    <Tab label="Swap" value="Swap" />
+                    <Tab label="Past Transactions" value="Past Transactions" />
+                  </Tabs>
                   <Spacer x={2} style={{ flexGrow: 0.7 }} />
                   <ConnectButton />
                 </Row>
