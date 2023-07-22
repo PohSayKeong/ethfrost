@@ -17,6 +17,7 @@ import {
   Modal,
   Link,
 } from "@nextui-org/react";
+import TransactionComponent from "@/components/Transactions";
 import type { NextPage } from "next";
 import ArrowCircleDownIcon from "@mui/icons-material/ArrowCircleDown";
 import { getChains, getPrices, getSite, getTokens } from "@/api/api";
@@ -72,6 +73,8 @@ const Swap: NextPage = () => {
   const [tradeLoading, setTradeLoading] = useState<boolean>(false);
   const [visible, setVisible] = useState<boolean>(false);
   const [transactionLink, setTransactionLink] = useState<string>();
+  const [content, setContent] = useState<string>("Swap");
+
   const handler = () => setVisible(true);
 
   const closeHandler = () => {
@@ -142,12 +145,30 @@ const Swap: NextPage = () => {
     return filteredTokens.find((token) => token.address === address);
   }
 
+  const handleUpdateTransactions = (url: string) => {
+    if (url != "") {
+      console.log(url);
+      const storedJsonString = localStorage.getItem("transactions");
+      let storedArray = [];
+
+      if (storedJsonString) {
+        storedArray = JSON.parse(storedJsonString);
+      }
+      storedArray.push(url);
+      console.log(storedArray);
+      const updatedJsonString = JSON.stringify(storedArray);
+      console.log(updatedJsonString);
+      localStorage.setItem("transactions", updatedJsonString);
+    }
+  };
+
   const handleSwap = async () => {
     // empty
     if (signer && squidInstance && route) {
       handler();
       setTradeLoading(true);
       const tx = await executeSwap(signer, squidInstance, route);
+      handleUpdateTransactions(tx.axelarTransactionUrl || "");
       setTransactionLink(tx.axelarTransactionUrl);
       setTradeLoading(false);
     }
@@ -193,7 +214,12 @@ const Swap: NextPage = () => {
       chains.find((chain) => chain.chainId == id);
     setSelectedChain(getChainById(chain.id));
   }, [chain, chains]);
-
+  const blueUnderlineBold = {
+    color: "blue",
+    textDecoration: "underline",
+    fontWeight: "bold",
+    cursor: "pointer",
+  };
   return (
     <>
       {tokens && inputToken && selectedChain && (
@@ -202,104 +228,134 @@ const Swap: NextPage = () => {
             <Card>
               <Card.Header>
                 <Row justify="center" align="center">
-                  <Text h3>Swap</Text>
+                  <Text
+                    h3
+                    style={
+                      content == "Swap"
+                        ? blueUnderlineBold
+                        : { cursor: "pointer" }
+                    }
+                    onClick={() => setContent("Swap")}
+                  >
+                    Swap
+                  </Text>
+                  <Spacer x={2} />
+                  <Text
+                    h3
+                    style={
+                      content == "Past Transactions"
+                        ? blueUnderlineBold
+                        : { cursor: "pointer" }
+                    }
+                    onClick={() => setContent("Past Transactions")}
+                  >
+                    Past Transactions
+                  </Text>
                   <Spacer x={2} style={{ flexGrow: 0.7 }} />
                   <ConnectButton />
                 </Row>
               </Card.Header>
               <Card.Body css={{ padding: 0 }}>
-                <Row justify="space-around">
-                  <Col span={7}>
-                    <Input
-                      type="number"
-                      value={inputAmount}
-                      onChange={handleInputChange}
-                      fullWidth
-                    />
-                    <Text>{`Balance: ${inputBalance?.formatted}`}</Text>
-                  </Col>
-                  <Col span={4}>
-                    <Dropdown>
-                      <Dropdown.Button css={{ width: "100%" }}>
-                        <Avatar
-                          bordered
-                          size="sm"
-                          as="button"
-                          src={inputToken.logoURI}
+                {content == "Swap" ? (
+                  <>
+                    <Row justify="space-around">
+                      <Col span={7}>
+                        <Input
+                          type="number"
+                          value={inputAmount}
+                          onChange={handleInputChange}
+                          fullWidth
                         />
-                        <Spacer x={1} />
-                        {inputToken.symbol}
-                      </Dropdown.Button>
-                      <Dropdown.Menu
-                        aria-label="Dynamic Actions"
-                        onAction={(key) => {
-                          setInputToken(
-                            getTokenByAddress(key as string) as Token
-                          );
-                        }}
-                      >
-                        {filteredTokens.map((token: Token) => (
-                          <Dropdown.Item key={token.address}>
-                            <Row css={{ alignItems: "center" }}>
-                              <Avatar
-                                bordered
-                                size="sm"
-                                as="button"
-                                src={token.logoURI}
-                              />
-                              <Spacer x={1} />
-                              {token.name}
-                            </Row>
-                          </Dropdown.Item>
-                        ))}
-                      </Dropdown.Menu>
-                    </Dropdown>
-                  </Col>
-                </Row>
-                <Row justify="center">
-                  <ArrowCircleDownIcon fontSize="large" />
-                </Row>
-                <Row justify="space-around">
-                  <Col span={7}>
-                    {priceLoading ? (
-                      <Loading />
-                    ) : (
-                      <Input
-                        type="number"
-                        value={outputAmount}
-                        onChange={handleInputChange}
-                        fullWidth
-                      />
-                    )}
+                        <Text>{`Balance: ${inputBalance?.formatted}`}</Text>
+                      </Col>
+                      <Col span={4}>
+                        <Dropdown>
+                          <Dropdown.Button css={{ width: "100%" }}>
+                            <Avatar
+                              bordered
+                              size="sm"
+                              as="button"
+                              src={inputToken.logoURI}
+                            />
+                            <Spacer x={1} />
+                            {inputToken.symbol}
+                          </Dropdown.Button>
+                          <Dropdown.Menu
+                            aria-label="Dynamic Actions"
+                            onAction={(key) => {
+                              setInputToken(
+                                getTokenByAddress(key as string) as Token
+                              );
+                            }}
+                          >
+                            {filteredTokens.map((token: Token) => (
+                              <Dropdown.Item key={token.address}>
+                                <Row css={{ alignItems: "center" }}>
+                                  <Avatar
+                                    bordered
+                                    size="sm"
+                                    as="button"
+                                    src={token.logoURI}
+                                  />
+                                  <Spacer x={1} />
+                                  {token.name}
+                                </Row>
+                              </Dropdown.Item>
+                            ))}
+                          </Dropdown.Menu>
+                        </Dropdown>
+                      </Col>
+                    </Row>
+                    <Row justify="center">
+                      <ArrowCircleDownIcon fontSize="large" />
+                    </Row>
+                    <Row justify="space-around">
+                      <Col span={7}>
+                        {priceLoading ? (
+                          <Loading />
+                        ) : (
+                          <Input
+                            type="number"
+                            value={outputAmount}
+                            onChange={handleInputChange}
+                            fullWidth
+                          />
+                        )}
 
-                    <Text>Balance: {vGLMRBalance?.formatted}</Text>
-                  </Col>
-                  <Col span={4}>
-                    <Button css={{ width: "100%" }}>
-                      <Avatar
-                        bordered
-                        size="sm"
-                        as="button"
-                        src={vGLMR.logoURI}
-                      />
-                      <Spacer x={1} />
-                      {vGLMR.name}
-                      <Spacer x={1} />
-                    </Button>
-                  </Col>
-                </Row>
+                        <Text>Balance: {vGLMRBalance?.formatted}</Text>
+                      </Col>
+                      <Col span={4}>
+                        <Button css={{ width: "100%" }}>
+                          <Avatar
+                            bordered
+                            size="sm"
+                            as="button"
+                            src={vGLMR.logoURI}
+                          />
+                          <Spacer x={1} />
+                          {vGLMR.name}
+                          <Spacer x={1} />
+                        </Button>
+                      </Col>
+                    </Row>
+                  </>
+                ) : (
+                  <TransactionComponent />
+                )}
               </Card.Body>
-              <Connected>
-                <Card.Footer>
-                  <Row justify="center">
-                    <Connected>
-                      <Button onClick={handleSwap} size="lg">
-                        Swap
-                      </Button>
-                    </Connected>
-                  </Row>
-                </Card.Footer>
-              </Connected>
+              {content == "Swap" ? (
+                <Connected>
+                  <Card.Footer>
+                    <Row justify="center">
+                      <Connected>
+                        <Button onClick={handleSwap} size="lg">
+                          Swap
+                        </Button>
+                      </Connected>
+                    </Row>
+                  </Card.Footer>
+                </Connected>
+              ) : null}
             </Card>
           </Grid>
         </Grid.Container>
