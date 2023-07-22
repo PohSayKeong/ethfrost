@@ -266,7 +266,7 @@ const Swap: NextPage = () => {
                           onChange={handleInputChange}
                           fullWidth
                         />
-                        <Text>{`Balance: ${inputBalance?.formatted}`}</Text>
+                        {inputBalance && <Text>{`Balance: ${inputBalance?.formatted}`}</Text>}
                       </Col>
                       <Col span={4}>
                         <Dropdown>
@@ -321,8 +321,7 @@ const Swap: NextPage = () => {
                             fullWidth
                           />
                         )}
-
-                        <Text>Balance: {vGLMRBalance?.formatted}</Text>
+                        {vGLMRBalance?.formatted&&<Text>Balance: {vGLMRBalance?.formatted}</Text>}
                       </Col>
                       <Col span={4}>
                         <Button css={{ width: "100%" }}>
