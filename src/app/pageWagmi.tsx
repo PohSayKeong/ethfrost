@@ -1,7 +1,7 @@
 import { Account } from "../components/Account";
 import { Balance } from "../components/Balance";
 import { BlockNumber } from "../components/BlockNumber";
-import { ConnectButton } from "../components/ConnectButton";
+// import { ConnectButton } from "../components/ConnectButton";
 import { Connected } from "../components/Connected";
 import { NetworkSwitcher } from "../components/NetworkSwitcher";
 import { ReadContract } from "../components/ReadContract";

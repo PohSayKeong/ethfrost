@@ -171,13 +171,17 @@ const Swap: NextPage = () => {
   };
 
   const handleSwap = async () => {
-    // empty
-    if (signer && squidInstance && route) {
-      handler();
-      setTradeLoading(true);
-      const tx = await executeSwap(signer, squidInstance, route);
-      handleUpdateTransactions(tx.axelarTransactionUrl || "");
-      setTransactionLink(tx.axelarTransactionUrl);
+    try {
+      if (signer && squidInstance && route) {
+        handler();
+        setTradeLoading(true);
+        const tx = await executeSwap(signer, squidInstance, route);
+        handleUpdateTransactions(tx.axelarTransactionUrl || "");
+        setTransactionLink(tx.axelarTransactionUrl);
+        setTradeLoading(false);
+      }
+    } catch {
+      closeHandler();
       setTradeLoading(false);
     }
   };
@@ -390,10 +394,11 @@ const Swap: NextPage = () => {
         <Loader />
       )}
       <Modal
-        closeButton
+        closeButton={!tradeLoading}
         aria-labelledby="modal-title"
         open={visible}
         onClose={closeHandler}
+        preventClose={tradeLoading}
       >
         <Modal.Header>
           <Text id="modal-title" size={18}>
