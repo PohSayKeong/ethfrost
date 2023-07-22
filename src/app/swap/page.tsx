@@ -258,7 +258,10 @@ const Swap: NextPage = () => {
               <Card.Body css={{ padding: 0 }}>
                 {content == "Swap" ? (
                   <>
-                    <Row justify="space-around">
+                    <Row
+                      justify="space-around"
+                      style={{ marginBottom: "0.5rem" }}
+                    >
                       <Col span={7}>
                         <Input
                           type="number"
@@ -266,7 +269,9 @@ const Swap: NextPage = () => {
                           onChange={handleInputChange}
                           fullWidth
                         />
-                        {inputBalance && <Text>{`Balance: ${inputBalance?.formatted}`}</Text>}
+                        {inputBalance && (
+                          <Text>{`Balance: ${inputBalance?.formatted}`}</Text>
+                        )}
                       </Col>
                       <Col span={4}>
                         <Dropdown>
@@ -306,10 +311,16 @@ const Swap: NextPage = () => {
                         </Dropdown>
                       </Col>
                     </Row>
-                    <Row justify="center">
-                      <ArrowCircleDownIcon fontSize="large" />
+                    <Row justify="center" style={{ marginBottom: "0.5rem" }}>
+                      <Col span={7} style={{ display: "flex" }}>
+                        <ArrowCircleDownIcon fontSize="large" />
+                      </Col>
+                      <Col span={4}></Col>
                     </Row>
-                    <Row justify="space-around">
+                    <Row
+                      justify="space-around"
+                      style={{ marginBottom: "1rem" }}
+                    >
                       <Col span={7}>
                         {priceLoading ? (
                           <Loading />
@@ -321,7 +332,9 @@ const Swap: NextPage = () => {
                             fullWidth
                           />
                         )}
-                        {vGLMRBalance?.formatted&&<Text>Balance: {vGLMRBalance?.formatted}</Text>}
+                        {vGLMRBalance?.formatted && (
+                          <Text>Balance: {vGLMRBalance?.formatted}</Text>
+                        )}
                       </Col>
                       <Col span={4}>
                         <Button css={{ width: "100%" }}>
