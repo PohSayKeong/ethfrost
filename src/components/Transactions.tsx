@@ -33,7 +33,7 @@ const TransactionComponent = () => {
                 <Row align="center" justify="center">
                   <Text h4>{index + 1}.</Text>
                   <Spacer x={2} />
-                  <Link href={text} isExternal>
+                  <Link href={text} isExternal target="_blank">
                     Transaction Link
                   </Link>
                 </Row>

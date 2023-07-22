@@ -377,7 +377,7 @@ const Swap: NextPage = () => {
           ) : (
             <>
               <Text size={16}>Trade successful!</Text>
-              <Link href={transactionLink} isExternal>
+              <Link href={transactionLink} isExternal target="_blank">
                 Transaction Link
               </Link>
             </>
