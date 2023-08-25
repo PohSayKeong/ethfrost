@@ -16,7 +16,7 @@ const Landing: NextPage = () => {
       <div
         style={{
           margin: "auto",
-          paddingTop: "18rem",
+          paddingTop: "4rem",
           paddingBottom: "11rem",
           width: "100%",
         }}
