@@ -66,6 +66,8 @@ const vGLMR: Token = {
 const Swap: NextPage = () => {
   const [tokens, setTokens] = useState<Token[]>([]);
   const [inputToken, setInputToken] = useState<Token>();
+  const [inputSwapAmount, setInputSwapAmount] = useState<number>();
+  const [outputSwapAmount, setOutputSwapAmount] = useState<number>();
   const [inputAmount, setInputAmount] = useState<number>();
   const [outputAmount, setOutputAmount] = useState<number>();
   const [site, setSite] = useState<any>(null);
@@ -78,7 +80,7 @@ const Swap: NextPage = () => {
   const [tradeLoading, setTradeLoading] = useState<boolean>(false);
   const [visible, setVisible] = useState<boolean>(false);
   const [transactionLink, setTransactionLink] = useState<string>();
-  const [content, setContent] = useState<string>("Swap");
+  const [content, setContent] = useState<string>("Stake");
   const matches = useMediaQuery("(min-width:960px)");
 
   const handler = () => setVisible(true);
@@ -186,9 +188,24 @@ const Swap: NextPage = () => {
     }
   };
 
+  const handleInputSwapChange = async (e: React.ChangeEvent<FormElement>) => {
+    const inputValue = parseFloat(e.target.value);
+    setInputSwapAmount(isNaN(inputValue) ? 0 : inputValue);
+  };
+
+  const handleOutputSwapChange = async (e: React.ChangeEvent<FormElement>) => {
+    const outputValue = parseFloat(e.target.value);
+    setOutputSwapAmount(isNaN(outputValue) ? 0 : outputValue);
+  };
+
   const handleInputChange = async (e: React.ChangeEvent<FormElement>) => {
     const inputValue = parseFloat(e.target.value);
     setInputAmount(isNaN(inputValue) ? 0 : inputValue);
+  };
+
+  const handleOutputChange = async (e: React.ChangeEvent<FormElement>) => {
+    const outputValue = parseFloat(e.target.value);
+    setOutputAmount(isNaN(outputValue) ? 0 : outputValue);
   };
 
   useEffect(() => {
@@ -208,7 +225,7 @@ const Swap: NextPage = () => {
         setSelectedChain(chains[0]);
         setSite(site);
         setPrices(prices);
-      } catch (e) {}
+      } catch (e) { }
     };
 
     fetchData();
@@ -254,6 +271,7 @@ const Swap: NextPage = () => {
                       onChange={handleChange}
                       aria-label="basic tabs example"
                     >
+                      <Tab label="Stake" value="Stake" />
                       <Tab label="Swap" value="Swap" />
                       <Tab
                         label="Past Transactions"
@@ -272,6 +290,92 @@ const Swap: NextPage = () => {
               </Card.Header>
               <Card.Body css={{ padding: 0 }}>
                 {content == "Swap" ? (
+                  <>
+                    <Row
+                      justify="space-around"
+                      style={{ marginBottom: "0.5rem", marginTop: "1rem" }}
+                    >
+                      <Col span={7}>
+                        Pay
+                        <Input
+                          type="number"
+                          value={inputSwapAmount}
+                          onChange={handleInputSwapChange}
+                          fullWidth
+                        />
+
+                        {inputBalance && (
+                          <Text>{`Balance: ${parseFloat(
+                            inputBalance?.formatted
+                          ).toPrecision(4)}`}</Text>
+                        )}
+                      </Col>
+                      <Col span={4}>
+                        <Dropdown>
+                          <Dropdown.Button css={{ width: "100%", minWidth: "0px" }}>
+                            <Avatar bordered size="sm" as="button" src="https://stakingcrypto.info/static/assets/coins/bifrost-bnc-logo.png" />
+                            <Spacer x={1} />
+                            BNC
+                          </Dropdown.Button>
+                          <Dropdown.Menu
+                            aria-label="Dynamic Actions"
+                            onAction={(key) => {
+                              setInputToken(
+                                getTokenByAddress(key as string) as Token
+                              );
+                            }}
+                          >
+                          </Dropdown.Menu>
+                        </Dropdown>
+                      </Col>
+                    </Row>
+                    <Row justify="center" style={{ marginBottom: "0.5rem" }}>
+                      <ArrowCircleDownIcon fontSize="large" />
+                    </Row>
+                    <Row
+                      justify="space-around"
+                      style={{ marginBottom: "1rem" }}
+                    >
+                      <Col span={7}>
+                        Receive
+                        {priceLoading ? (
+                          <Loading />
+                        ) : (
+                          <Input
+                            type="number"
+                            value={outputSwapAmount}
+                            onChange={handleOutputSwapChange}
+                            fullWidth
+                          />
+                        )}
+                        {vGLMRBalance?.formatted && (
+                          <Text>
+                            Balance:{" "}
+                            {parseFloat(vGLMRBalance?.formatted).toPrecision(4)}
+                          </Text>
+                        )}
+                      </Col>
+                      <Col span={4}>
+                        <Dropdown>
+                          <Dropdown.Button css={{ width: "100%", minWidth: "0px" }}>
+                            <Avatar bordered size="sm" as="button" src="https://cryptologos.cc/logos/polkadot-new-dot-logo.png?v=026" />
+                            <Spacer x={1} />
+                            DOT
+                          </Dropdown.Button>
+                          <Dropdown.Menu
+                            aria-label="Dynamic Actions"
+                            onAction={(key) => {
+                              setInputToken(
+                                getTokenByAddress(key as string) as Token
+                              );
+                            }}
+                          >
+                          </Dropdown.Menu>
+                        </Dropdown>
+                      </Col>
+                    </Row>
+                  </>
+                ) : content == "Stake" ? (
                   <>
                     <Row
                       justify="space-around"
@@ -344,7 +448,7 @@ const Swap: NextPage = () => {
                           <Input
                             type="number"
                             value={outputAmount}
-                            onChange={handleInputChange}
+                            onChange={handleOutputChange}
                             fullWidth
                           />
                         )}
@@ -374,7 +478,20 @@ const Swap: NextPage = () => {
                   <TransactionComponent />
                 )}
               </Card.Body>
-              {content == "Swap" ? (
+
+              {content == "Stake" ? (
+                <Connected>
+                  <Card.Footer>
+                    <Row justify="center">
+                      <Connected>
+                        <Button onClick={handleSwap} size="lg">
+                          Stake
+                        </Button>
+                      </Connected>
+                    </Row>
+                  </Card.Footer>
+                </Connected>
+              ) : content == "Swap" ? (
                 <Connected>
                   <Card.Footer>
                     <Row justify="center">
@@ -418,7 +535,7 @@ const Swap: NextPage = () => {
           )}
         </Modal.Body>
       </Modal>
-      {site && prices && <StatsDisplay site={site} prices={prices} />}
+      {site && prices && content == "Stake" && <StatsDisplay site={site} prices={prices} />}
     </>
   );
 };
