@@ -41,6 +41,7 @@ import { NavbarMain } from "@/components/Navbar";
 import { Loader } from "@/components/Loader";
 import { PriceStatsDisplay } from "@/components/PriceStatsDisplay";
 
+import CardComponent from "@/components/CardComponent";
 interface Token {
   address?: `0x${string}`;
   chainId?: number;
@@ -192,7 +193,9 @@ const Swap: NextPage = () => {
   const handleInputSwapChange = async (e: React.ChangeEvent<FormElement>) => {
     const inputValue = parseFloat(e.target.value);
     setInputSwapAmount(isNaN(inputValue) ? 0 : inputValue);
-    !isNaN(inputValue) ? setOutputSwapAmount(inputValue * 21.29619425771058) : null
+    !isNaN(inputValue)
+      ? setOutputSwapAmount(inputValue * 21.29619425771058)
+      : null;
   };
 
   const handleOutputSwapChange = async (e: React.ChangeEvent<FormElement>) => {
@@ -227,7 +230,7 @@ const Swap: NextPage = () => {
         setSelectedChain(chains[0]);
         setSite(site);
         setPrices(prices);
-      } catch (e) { }
+      } catch (e) {}
     };
 
     fetchData();
@@ -252,6 +255,70 @@ const Swap: NextPage = () => {
       <link rel="icon" href="img/icon.png" />
       <title>Ethfrost</title>
       <NavbarMain />
+      <div
+        style={{
+          display: "flex",
+          minHeight: "100vh",
+          width: "100%",
+          alignItems: "center",
+          flexDirection: "column",
+        }}
+      >
+        <div
+          style={{
+            margin: "auto",
+            paddingTop: "4rem",
+            paddingBottom: "11rem",
+            width: "100%",
+          }}
+        >
+          <Text
+            h3
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              display: "flex",
+              fontSize: "3rem",
+              fontWeight: "600",
+              marginBottom: "9rem",
+            }}
+          >
+            The New Liquid Staking Standard
+          </Text>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(4, minmax(0,1fr))",
+              paddingLeft: "1.25rem",
+              paddingRight: "1.25rem",
+              gap: "2.5rem",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <CardComponent
+              title="Governance"
+              body="Bifrost uses a sophisticated governance mechanisms that allows the derivative to retain its governance capabilities through cross chain interoperability."
+              icon="/img/vGLMR.png"
+            />
+            <CardComponent
+              title="Cross-chain"
+              body="Compatible with both homogeneous and heterogeneous chain scenarios by preserving native chain staking revenues."
+              icon="/img/vGLMR.png"
+            />
+            <CardComponent
+              title="Decentralization"
+              body="Derivatives logic run by the Bifrost parachain Runtime Pallet which evolves with Governance democracy referendums."
+              icon="/img/vGLMR.png"
+            />
+            <CardComponent
+              title="Multi-scenario"
+              body="No liquidations, with a 1-1 peg yield-bearing feature, and valuable utility across multi DeFi protocols for trading, borrowing, leveraging and far more."
+              icon="/img/vGLMR.png"
+            />
+          </div>
+        </div>
+      </div>
       {tokens && inputToken && selectedChain ? (
         <Grid.Container
           gap={2}
@@ -313,8 +380,15 @@ const Swap: NextPage = () => {
                       </Col>
                       <Col span={4}>
                         <Dropdown>
-                          <Dropdown.Button css={{ width: "100%", minWidth: "0px" }}>
-                            <Avatar bordered size="sm" as="button" src="https://cryptologos.cc/logos/polkadot-new-dot-logo.png?v=026" />
+                          <Dropdown.Button
+                            css={{ width: "100%", minWidth: "0px" }}
+                          >
+                            <Avatar
+                              bordered
+                              size="sm"
+                              as="button"
+                              src="https://cryptologos.cc/logos/polkadot-new-dot-logo.png?v=026"
+                            />
                             <Spacer x={1} />
                             DOT
                           </Dropdown.Button>
@@ -325,8 +399,7 @@ const Swap: NextPage = () => {
                                 getTokenByAddress(key as string) as Token
                               );
                             }}
-                          >
-                          </Dropdown.Menu>
+                          ></Dropdown.Menu>
                         </Dropdown>
                       </Col>
                     </Row>
@@ -357,8 +430,15 @@ const Swap: NextPage = () => {
                       </Col>
                       <Col span={4}>
                         <Dropdown>
-                          <Dropdown.Button css={{ width: "100%", minWidth: "0px" }}>
-                            <Avatar bordered size="sm" as="button" src="https://stakingcrypto.info/static/assets/coins/bifrost-bnc-logo.png" />
+                          <Dropdown.Button
+                            css={{ width: "100%", minWidth: "0px" }}
+                          >
+                            <Avatar
+                              bordered
+                              size="sm"
+                              as="button"
+                              src="https://stakingcrypto.info/static/assets/coins/bifrost-bnc-logo.png"
+                            />
                             <Spacer x={1} />
                             BNC
                           </Dropdown.Button>
@@ -369,8 +449,7 @@ const Swap: NextPage = () => {
                                 getTokenByAddress(key as string) as Token
                               );
                             }}
-                          >
-                          </Dropdown.Menu>
+                          ></Dropdown.Menu>
                         </Dropdown>
                       </Col>
                     </Row>
@@ -535,10 +614,12 @@ const Swap: NextPage = () => {
           )}
         </Modal.Body>
       </Modal>
-      {site && prices && content == "Swap" && <PriceStatsDisplay/>}
-        {site && prices && content == "Stake" && <StatsDisplay site={site} prices={prices} />}
-      </>
+      {site && prices && content == "Swap" && <PriceStatsDisplay />}
+      {site && prices && content == "Stake" && (
+        <StatsDisplay site={site} prices={prices} />
+      )}
+    </>
   );
 };
 
-      export default Swap;
+export default Swap;
