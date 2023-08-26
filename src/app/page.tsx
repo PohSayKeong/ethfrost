@@ -39,6 +39,7 @@ import { RouteData, Squid } from "@0xsquid/sdk";
 import { useMediaQuery } from "@mui/material";
 import { NavbarMain } from "@/components/Navbar";
 import { Loader } from "@/components/Loader";
+import { PriceStatsDisplay } from "@/components/PriceStatsDisplay";
 
 interface Token {
   address?: `0x${string}`;
@@ -191,6 +192,7 @@ const Swap: NextPage = () => {
   const handleInputSwapChange = async (e: React.ChangeEvent<FormElement>) => {
     const inputValue = parseFloat(e.target.value);
     setInputSwapAmount(isNaN(inputValue) ? 0 : inputValue);
+    !isNaN(inputValue) ? setOutputSwapAmount(inputValue * 21.29619425771058) : null
   };
 
   const handleOutputSwapChange = async (e: React.ChangeEvent<FormElement>) => {
@@ -296,7 +298,6 @@ const Swap: NextPage = () => {
                       style={{ marginBottom: "0.5rem", marginTop: "1rem" }}
                     >
                       <Col span={7}>
-                        Pay
                         <Input
                           type="number"
                           value={inputSwapAmount}
@@ -313,9 +314,9 @@ const Swap: NextPage = () => {
                       <Col span={4}>
                         <Dropdown>
                           <Dropdown.Button css={{ width: "100%", minWidth: "0px" }}>
-                            <Avatar bordered size="sm" as="button" src="https://stakingcrypto.info/static/assets/coins/bifrost-bnc-logo.png" />
+                            <Avatar bordered size="sm" as="button" src="https://cryptologos.cc/logos/polkadot-new-dot-logo.png?v=026" />
                             <Spacer x={1} />
-                            BNC
+                            DOT
                           </Dropdown.Button>
                           <Dropdown.Menu
                             aria-label="Dynamic Actions"
@@ -337,7 +338,6 @@ const Swap: NextPage = () => {
                       style={{ marginBottom: "1rem" }}
                     >
                       <Col span={7}>
-                        Receive
                         {priceLoading ? (
                           <Loading />
                         ) : (
@@ -358,9 +358,9 @@ const Swap: NextPage = () => {
                       <Col span={4}>
                         <Dropdown>
                           <Dropdown.Button css={{ width: "100%", minWidth: "0px" }}>
-                            <Avatar bordered size="sm" as="button" src="https://cryptologos.cc/logos/polkadot-new-dot-logo.png?v=026" />
+                            <Avatar bordered size="sm" as="button" src="https://stakingcrypto.info/static/assets/coins/bifrost-bnc-logo.png" />
                             <Spacer x={1} />
-                            DOT
+                            BNC
                           </Dropdown.Button>
                           <Dropdown.Menu
                             aria-label="Dynamic Actions"
@@ -535,9 +535,10 @@ const Swap: NextPage = () => {
           )}
         </Modal.Body>
       </Modal>
-      {site && prices && content == "Stake" && <StatsDisplay site={site} prices={prices} />}
-    </>
+      {site && prices && content == "Swap" && <PriceStatsDisplay/>}
+        {site && prices && content == "Stake" && <StatsDisplay site={site} prices={prices} />}
+      </>
   );
 };
 
-export default Swap;
+      export default Swap;
