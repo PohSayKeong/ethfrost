@@ -27,7 +27,7 @@ import { StatsDisplay } from "@/components/StatsDisplay";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Connected } from "@/components/Connected";
 import "@rainbow-me/rainbowkit/styles.css";
-import { useAccount, useBalance, useNetwork } from "wagmi";
+import { useAccount, useBalance, useNetwork, useSwitchNetwork } from "wagmi";
 import { useEthersSigner } from "../hooks/useEthersSigner";
 import {
   createSquid,
@@ -94,6 +94,8 @@ const Swap: NextPage = () => {
   // wagmi
   const { address } = useAccount();
   const { chain } = useNetwork();
+  const { switchNetwork } = useSwitchNetwork();
+
   const { data: inputBalance } = useBalance({
     address,
     token:
@@ -242,10 +244,12 @@ const Swap: NextPage = () => {
 
   useEffect(() => {
     if (!chain) return;
+    if (!switchNetwork) return;
+    if (chain.unsupported) switchNetwork(5);
     const getChainById = (id: number) =>
       chains.find((chain) => chain.chainId == id);
     setSelectedChain(getChainById(chain.id));
-  }, [chain, chains]);
+  }, [chain, chains, switchNetwork]);
 
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
     setContent(newValue);
@@ -258,65 +262,53 @@ const Swap: NextPage = () => {
       <div
         style={{
           display: "flex",
-          minHeight: "100vh",
+          minHeight: "90vh",
           width: "100%",
           alignItems: "center",
           flexDirection: "column",
+          justifyContent: "center",
         }}
       >
-        <div
+        <Text
+          h3
           style={{
-            margin: "auto",
-            paddingTop: "4rem",
-            paddingBottom: "11rem",
-            width: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+            display: "flex",
+            fontSize: "3rem",
+            fontWeight: "600",
+            marginBottom: "2rem",
+            textAlign: "center",
           }}
         >
-          <Text
-            h3
-            style={{
-              justifyContent: "center",
-              alignItems: "center",
-              display: "flex",
-              fontSize: "3rem",
-              fontWeight: "600",
-              marginBottom: "9rem",
-            }}
-          >
-            The New Liquid Staking Standard
-          </Text>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(4, minmax(0,1fr))",
-              paddingLeft: "1.25rem",
-              paddingRight: "1.25rem",
-              gap: "2.5rem",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <CardComponent
-              title="Governance"
-              body="Bifrost uses a sophisticated governance mechanisms that allows the derivative to retain its governance capabilities through cross chain interoperability."
-              icon="/img/vGLMR.png"
-            />
-            <CardComponent
-              title="Cross-chain"
-              body="Compatible with both homogeneous and heterogeneous chain scenarios by preserving native chain staking revenues."
-              icon="/img/vGLMR.png"
-            />
-            <CardComponent
-              title="Decentralization"
-              body="Derivatives logic run by the Bifrost parachain Runtime Pallet which evolves with Governance democracy referendums."
-              icon="/img/vGLMR.png"
-            />
-            <CardComponent
-              title="Multi-scenario"
-              body="No liquidations, with a 1-1 peg yield-bearing feature, and valuable utility across multi DeFi protocols for trading, borrowing, leveraging and far more."
-              icon="/img/vGLMR.png"
-            />
-          </div>
+          Next Level Interoperability
+        </Text>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: matches ? "repeat(3, minmax(0,1fr))" : "",
+            paddingLeft: "1.25rem",
+            paddingRight: "1.25rem",
+            gap: "2.5rem",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <CardComponent
+            title="EVM Chains"
+            body="No more bridging. Participate in liquid staking from EVM compatible chains using any token with a single click."
+            icon="/img/eth.png"
+          />
+          <CardComponent
+            title="Bifrost Liquid Staking"
+            body="Natively integrated with Bifrost which provides LSD for 9+ blockchains and beyond"
+            icon="/img/vGLMR.png"
+          />
+          <CardComponent
+            title="Parachains"
+            body="Dedicated layer-1 built on Substrate with XCM for cross-chain staking"
+            icon="/img/polkadot.png"
+          />
         </div>
       </div>
       {tokens && inputToken && selectedChain ? (
@@ -339,13 +331,11 @@ const Swap: NextPage = () => {
                       value={content}
                       onChange={handleChange}
                       aria-label="basic tabs example"
+                      variant="fullWidth"
                     >
                       <Tab label="Stake" value="Stake" />
                       <Tab label="Swap" value="Swap" />
-                      <Tab
-                        label="Past Transactions"
-                        value="Past Transactions"
-                      />
+                      <Tab label="History" value="History" />
                     </Tabs>
                   </Grid>
                   <Grid
@@ -372,11 +362,7 @@ const Swap: NextPage = () => {
                           fullWidth
                         />
 
-                        {inputBalance && (
-                          <Text>{`Balance: ${parseFloat(
-                            inputBalance?.formatted
-                          ).toPrecision(4)}`}</Text>
-                        )}
+                        {inputBalance && <Text>Balance: 13.2</Text>}
                       </Col>
                       <Col span={4}>
                         <Dropdown>
@@ -392,14 +378,7 @@ const Swap: NextPage = () => {
                             <Spacer x={1} />
                             DOT
                           </Dropdown.Button>
-                          <Dropdown.Menu
-                            aria-label="Dynamic Actions"
-                            onAction={(key) => {
-                              setInputToken(
-                                getTokenByAddress(key as string) as Token
-                              );
-                            }}
-                          ></Dropdown.Menu>
+                          <div />
                         </Dropdown>
                       </Col>
                     </Row>
@@ -421,12 +400,7 @@ const Swap: NextPage = () => {
                             fullWidth
                           />
                         )}
-                        {vGLMRBalance?.formatted && (
-                          <Text>
-                            Balance:{" "}
-                            {parseFloat(vGLMRBalance?.formatted).toPrecision(4)}
-                          </Text>
-                        )}
+                        {vGLMRBalance?.formatted && <Text>Balance: 0</Text>}
                       </Col>
                       <Col span={4}>
                         <Dropdown>
@@ -442,14 +416,7 @@ const Swap: NextPage = () => {
                             <Spacer x={1} />
                             BNC
                           </Dropdown.Button>
-                          <Dropdown.Menu
-                            aria-label="Dynamic Actions"
-                            onAction={(key) => {
-                              setInputToken(
-                                getTokenByAddress(key as string) as Token
-                              );
-                            }}
-                          ></Dropdown.Menu>
+                          <div />
                         </Dropdown>
                       </Col>
                     </Row>
@@ -575,8 +542,8 @@ const Swap: NextPage = () => {
                   <Card.Footer>
                     <Row justify="center">
                       <Connected>
-                        <Button onClick={handleSwap} size="lg">
-                          Swap
+                        <Button disabled size="lg">
+                          Coming Soon
                         </Button>
                       </Connected>
                     </Row>
@@ -614,7 +581,7 @@ const Swap: NextPage = () => {
           )}
         </Modal.Body>
       </Modal>
-      {site && prices && content == "Swap" && <PriceStatsDisplay />}
+      {content == "Swap" && <PriceStatsDisplay />}
       {site && prices && content == "Stake" && (
         <StatsDisplay site={site} prices={prices} />
       )}
